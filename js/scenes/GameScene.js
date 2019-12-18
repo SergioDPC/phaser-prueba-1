@@ -11,9 +11,10 @@ class GameScene extends Phaser.Scene {
     }
     
     create() {
+        this.createMap();
         this.createAudio();
         this.createChests();
-        this.createWalls();
+        // this.createWalls();
         this.createPlayer();
         this.addCollisions();       
         this.createInput();
@@ -66,10 +67,10 @@ class GameScene extends Phaser.Scene {
         
     }
     
-    createWalls() {
-        this.wall = this.physics.add.image(500, 100, 'button1');
-        this.wall.setImmovable(); // Si se pone que sea inmovibble ya no se podra empuyjar al tocarlo
-    }
+    // createWalls() {
+    //     this.wall = this.physics.add.image(500, 100, 'button1');
+    //     this.wall.setImmovable(); // Si se pone que sea inmovibble ya no se podra empuyjar al tocarlo
+    // }
     
     createInput() {
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -106,5 +107,18 @@ class GameScene extends Phaser.Scene {
     
     update() {
         this.player.update(this.cursors);
+    }
+
+    createMap() {
+        // Create the Tile map
+        this.map = this.make.tilemap({ key: 'map' });
+        // Add the tileset image to the map
+        this.tiles = this.map.addTilesetImage('background', 'background', 32, 32, 1, 2);
+        // Create the backgroun layer
+        this.backgroundLayer = this.map.createStaticLayer('background', this.tiles, 0, 0);
+        this.backgroundLayer.setScale(2);
+        // Create blocked layer
+        this.blockedLayer = this.map.createStaticLayer('blocked', this.tiles, 0, 0);
+        this.blockedLayer.setScale(2);
     }
 }
