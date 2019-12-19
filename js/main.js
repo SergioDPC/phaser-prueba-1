@@ -14,10 +14,12 @@ var config = {
         arcade: {
         debug: true,
             gravity: {
-                y: 1
+                y: 0
             }
         }
-    }
+    },
+    pixelArt: true,
+    roundPixels: true
 };
 
 var game = new Phaser.Game(config);

@@ -30,7 +30,7 @@ class GameScene extends Phaser.Scene {
     }
     
     createPlayer() {
-        this.player = new Player(this, 32, 32, 'characters', 0);
+        this.player = new Player(this, 224, 224, 'characters', 0);
     }
     
     createChests() {
@@ -78,7 +78,8 @@ class GameScene extends Phaser.Scene {
     
     addCollisions() {
         // Un collider es un objeto con el que se puede chocar
-        this.physics.add.collider(this.player, this.wall);
+        // Le decimos al personaje que choke con nuestra capa de blokes
+        this.physics.add.collider(this.player, this.map.blockedLayer);
         // Un overlap es un objeto que lanza una función al pasar por encima
         this.physics.add.overlap(
             this.player,
@@ -110,15 +111,7 @@ class GameScene extends Phaser.Scene {
     }
 
     createMap() {
-        // Create the Tile map
-        this.map = this.make.tilemap({ key: 'map' });
-        // Add the tileset image to the map
-        this.tiles = this.map.addTilesetImage('background', 'background', 32, 32, 1, 2);
-        // Create the backgroun layer
-        this.backgroundLayer = this.map.createStaticLayer('background', this.tiles, 0, 0);
-        this.backgroundLayer.setScale(2);
-        // Create blocked layer
-        this.blockedLayer = this.map.createStaticLayer('blocked', this.tiles, 0, 0);
-        this.blockedLayer.setScale(2);
+        // Create the map
+        this.map = new Map(this, 'map', 'background', 'background', 'blocked');
     }
 }

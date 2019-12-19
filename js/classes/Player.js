@@ -22,6 +22,8 @@ class Player extends Phaser.Physics.Arcade.Image {
         // Add the player to our existing scene 
         // Sin esta linea el personaje se crearia pero no estaría unido a la esena actual
         this.scene.add.existing(this);
+        // Have the camera follow the player
+        this.scene.cameras.main.startFollow(this);
     }
     
     update(cursors) {
