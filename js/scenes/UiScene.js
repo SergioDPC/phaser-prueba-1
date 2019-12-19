@@ -26,9 +26,9 @@ class UiScene extends Phaser.Scene {
         // Agarramos es que tomamos una referencia de la scene 'Game'
         // Y cuando esta scene lanza un evento lo escucho con esto y
         // Puedo lanzar una función
-        this.gameScene.events.on('updateScore', (score) => {
-            this.scoreText.setText(`Coins: ${score}`)
-        })
+        this.gameScene.events.on('updateScore', score => {
+            this.scoreText.setText(`Coins: ${score}`);
+        });
     }
     
 }

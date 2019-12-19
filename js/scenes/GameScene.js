@@ -14,10 +14,12 @@ class GameScene extends Phaser.Scene {
         this.createMap();
         this.createAudio();
         this.createChests();
-        // this.createWalls();
-        this.createPlayer();
-        this.addCollisions();       
+        // this.createWalls(); se paso al createGameManager
+        // this.createPlayer(); se paso al createGameManager
+        // this.addCollisions();       
         this.createInput();
+
+        this.createGameManager();
     }
     
     createAudio() {
@@ -29,8 +31,8 @@ class GameScene extends Phaser.Scene {
         this.goldPickupAudio = this.sound.add('goldSound');
     }
     
-    createPlayer() {
-        this.player = new Player(this, 224, 224, 'characters', 0);
+    createPlayer(location) {
+        this.player = new Player(this, location[0] * 2, location[1] * 2, 'characters', 0);
     }
     
     createChests() {
@@ -107,11 +109,24 @@ class GameScene extends Phaser.Scene {
     }
     
     update() {
-        this.player.update(this.cursors);
+        // Revisamos si el jugador ya existe antes de poder moverse o mandará error
+        if (this.player) {
+            this.player.update(this.cursors);
+        }
     }
 
     createMap() {
         // Create the map
         this.map = new Map(this, 'map', 'background', 'background', 'blocked');
+    }
+
+    createGameManager() {
+        this.events.on('spawnPlayer', location => {
+            this.createPlayer(location);
+            this.addCollisions();
+        });
+        /* Creamos el game manager y le pasamos la scene y los objetos creados el Tiled */
+        this.gameManager = new GameManager(this, this.map.map.objects);
+        this.gameManager.setup();
     }
 }
