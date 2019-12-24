@@ -10,7 +10,7 @@ class Spawner {
         // Donde va a aparecer
         this.spawnLocations = spawnLocations;
         /* Estas 2 nos permitiran comunicarnos entre el GameManager y el Spawner
-        Porque el GameManager también sigue los ches y mobs creados y estos tienen 
+        Porque el GameManager también sigue los chest y mobs creados y estos tienen 
         que estar actualizado en los 2 */
         // Funcion externa para añadir objetos
         this.addObject = addObject;
@@ -32,15 +32,14 @@ class Spawner {
     }
 
     spawnObject() {
-        console.log('spawning object');
-        if (this.objectType === 'CHEST') {
+        if (this.objectType === SpawnerType.CHEST) {
             this.spawnChest();
         }
     }
 
     spawnChest() {
         const location = this.pickRandomLocation();
-        const chest = new ChestModel(location[0], location[1], 10, this.id);
+        const chest = new ChestModel(location[0], location[1], randomNumber(10, 20), this.id);
         this.objectsCreated.push(chest);
         this.addObject(chest.id, chest);
     }
@@ -61,7 +60,8 @@ class Spawner {
         return location;
     }
 
-    removeObject() {
-
+    removeObject(id) {
+        this.objectsCreated = this.objectsCreated.filter(obj => obj.id !== id);
+        this.deleteObject(id);
     }
 }

@@ -11,9 +11,10 @@ class GameScene extends Phaser.Scene {
     }
     
     create() {
+        console.log('create 1');
         this.createMap();
         this.createAudio();
-        this.createChests();
+        this.createGroups();
         // this.createWalls(); se paso al createGameManager
         // this.createPlayer(); se paso al createGameManager
         // this.addCollisions();       
@@ -35,35 +36,34 @@ class GameScene extends Phaser.Scene {
         this.player = new Player(this, location[0] * 2, location[1] * 2, 'characters', 0);
     }
     
-    createChests() {
+    createGroups() {
+        console.log('createGroups 2');
         // Create a chest group
-        // Sirve para crear un grupo de objetois que tendrán la misma funcionalidad como se ve en la fn "addCollision" donde se le agrega la funcionalidad de recolectarlos
+        // Sirve para crear un grupo de objetos que tendrán la misma funcionalidad como se ve en la fn "addCollision" donde se le agrega la funcionalidad de recolectarlos
         this.chests = this.physics.add.group();
-        // Create Chest positions arrays
-        this.chestPositions= [[100, 100], [200, 200], [300, 300], [292, 124]]
-        this.maxNumberOfChests = 3;
-        for(let i = 0; i < this.maxNumberOfChests; i += 1) {
-            // Span a chest
-            this.spawnChest();
-        }
         
     }
     
-    spawnChest() {
-        const location = this.chestPositions[
-            Math.floor(Math.random() * this.chestPositions.length)
-        ];
+    spawnChest(chestObject) {
         // Buscara en el arreglo de objetos a ver si hay algun objeto desactivado y lo regresa
         // Esto para no estar creando un objeto nuevo cada vez que 
         // tomamos un cofre sino de reutilizar los inactivos una y otra vez. (más eficiente)
         let chest = this.chests.getFirstDead();
         if(!chest) {
             const chest = new Chest(
-                this, location[0], location[1], 'items', 0
+                this,
+                chestObject.x * 2,
+                chestObject.y * 2,
+                'items',
+                0,
+                chestObject.gold,
+                chestObject.id
             );
             this.chests.add(chest);
         } else {
-            chest.setPosition(location[0], location[1]);
+            chest.coins = chestObject.gold;
+            chest.id = chestObject.id;
+            chest.setPosition(chestObject.x * 2, chestObject.y * 2);
             chest.makeActive();
         }
         
@@ -79,6 +79,7 @@ class GameScene extends Phaser.Scene {
     }
     
     addCollisions() {
+        console.log('addCollisions 4');
         // Un collider es un objeto con el que se puede chocar
         // Le decimos al personaje que choke con nuestra capa de blokes
         this.physics.add.collider(this.player, this.map.blockedLayer);
@@ -94,6 +95,8 @@ class GameScene extends Phaser.Scene {
     }
     
     collectChest (player, chest) {
+        console.log('collectChest');
+        
         // Emite el sonido de recolección del tesoro
         this.goldPickupAudio.play();
         // Update score
@@ -104,8 +107,8 @@ class GameScene extends Phaser.Scene {
         /* chest.destroy(); */
         // Inactivamos el cofre en ves de destruirlo
         chest.makeInactive();
-        // Spawn a new chest
-        this.spawnChest();
+        
+        this.events.emit('pickUpChest', chest.id);
     }
     
     update() {
@@ -121,10 +124,14 @@ class GameScene extends Phaser.Scene {
     }
 
     createGameManager() {
+        console.log('createGameManager 3');
         this.events.on('spawnPlayer', location => {
             this.createPlayer(location);
             this.addCollisions();
         });
+
+        this.events.on('chestSpawned', chest => this.spawnChest(chest) );
+
         /* Creamos el game manager y le pasamos la scene y los objetos creados el Tiled */
         this.gameManager = new GameManager(this, this.map.map.objects);
         this.gameManager.setup();
