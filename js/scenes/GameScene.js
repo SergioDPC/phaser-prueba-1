@@ -41,6 +41,8 @@ class GameScene extends Phaser.Scene {
         // Create a chest group
         // Sirve para crear un grupo de objetos que tendrán la misma funcionalidad como se ve en la fn "addCollision" donde se le agrega la funcionalidad de recolectarlos
         this.chests = this.physics.add.group();
+        // Create a monster group
+        this.monsters = this.physics.add.group();
         
     }
     
@@ -50,7 +52,7 @@ class GameScene extends Phaser.Scene {
         // tomamos un cofre sino de reutilizar los inactivos una y otra vez. (más eficiente)
         let chest = this.chests.getFirstDead();
         if(!chest) {
-            const chest = new Chest(
+            chest = new Chest(
                 this,
                 chestObject.x * 2,
                 chestObject.y * 2,
@@ -67,6 +69,31 @@ class GameScene extends Phaser.Scene {
             chest.makeActive();
         }
         
+    }
+
+    spawnMonster(monsterObject) {
+        // RODO: needs to be implemented
+        let monster = this.monsters.getFirstDead();
+        if(!monster) {
+            monster = new Monster(
+                this,
+                monsterObject.x * 2,
+                monsterObject.y * 2,
+                'monsters',
+                monsterObject.frame,
+                monsterObject.id,
+                monsterObject.health,
+                monsterObject.maxHealth
+            );
+            this.monsters.add(monster);
+        } else {
+            monster.id = monsterObject.id;
+            monster.health = monsterObject.health;
+            monster.maxhealth = monsterObject.maxhealth;
+            monster.setTexture('monsters', monsterObject.frame);
+            monster.setPosition(monsterObject.x * 2, monsterObject.y * 2);
+            monster.makeActive();
+        }
     }
     
     // createWalls() {
@@ -92,6 +119,22 @@ class GameScene extends Phaser.Scene {
             null,
             this
         );
+        
+        // Funciones para los mobs
+        this.physics.add.collider(this.monsters, this.map.blockedLayer);
+        this.physics.add.overlap(
+            this.player,
+            this.monsters,
+            this.enemyOverlap,
+            null,
+            this
+        );
+    }
+
+    enemyOverlap(player, enemy) {
+        // console.log(enemy);
+        enemy.makeActive();
+        this.events.emit('destroyEnemy', enemy.id);
     }
     
     collectChest (player, chest) {
@@ -131,6 +174,8 @@ class GameScene extends Phaser.Scene {
         });
 
         this.events.on('chestSpawned', chest => this.spawnChest(chest) );
+
+        this.events.on('monsterSpawned', monster => this.spawnMonster(monster) );
 
         /* Creamos el game manager y le pasamos la scene y los objetos creados el Tiled */
         this.gameManager = new GameManager(this, this.map.map.objects);
